@@ -93,6 +93,8 @@ static int cake_parse_opt(const struct qdisc_util *qu, int argc, char **argv,
 {
 	struct cake_preset *preset, *preset_set = NULL;
 	bool overhead_override = false;
+	unsigned int sync_time = 0;
+	bool set_sync_time = false;
 	bool overhead_set = false;
 	unsigned int interval = 0;
 	int diffserv = -1;
@@ -340,7 +342,14 @@ static int cake_parse_opt(const struct qdisc_util *qu, int argc, char **argv,
 					"Illegal value for \"fwmark\": \"%s\"\n", *argv);
 				return -1;
 			}
-		} else if (strcmp(*argv, "help") == 0) {
+		} else if (strcmp(*argv, "sync") == 0) {
+			NEXT_ARG();
+			if (get_time(&sync_time, *argv)) {
+				fprintf(stderr, "Illegal sync time\n");
+				return -1;
+			}
+			set_sync_time = true;
+		}else if (strcmp(*argv, "help") == 0) {
 			explain();
 			return -1;
 		} else {
@@ -399,6 +408,8 @@ static int cake_parse_opt(const struct qdisc_util *qu, int argc, char **argv,
 	if (ack_filter != -1)
 		addattr_l(n, 1024, TCA_CAKE_ACK_FILTER, &ack_filter,
 			  sizeof(ack_filter));
+	if(set_sync_time)
+		addattr_l(n, 1024, TCA_CAKE_SYNC_TIME, &sync_time, sizeof(sync_time));
 
 	tail->rta_len = (void *) NLMSG_TAIL(n) - (void *) tail;
 	return 0;
@@ -421,6 +432,7 @@ static int cake_print_opt(const struct qdisc_util *qu, FILE *f, struct rtattr *o
 	unsigned int interval = 0;
 	unsigned int memlimit = 0;
 	unsigned int fwmark = 0;
+	__u32 active_queues=0;
 	__u64 bandwidth = 0;
 	int ack_filter = 0;
 	int split_gso = 0;
@@ -525,6 +537,10 @@ static int cake_print_opt(const struct qdisc_util *qu, FILE *f, struct rtattr *o
 	    RTA_PAYLOAD(tb[TCA_CAKE_FWMARK]) >= sizeof(__u32)) {
 		fwmark = rta_getattr_u32(tb[TCA_CAKE_FWMARK]);
 	}
+	if (tb[TCA_CAKE_ACITVE_QUEUES] &&
+		RTA_PAYLOAD(tb[TCA_CAKE_ACITVE_QUEUES]) >= sizeof(__u32)) {
+		active_queues = rta_getattr_u32(tb[TCA_CAKE_ACITVE_QUEUES]);
+	}
 
 	if (wash)
 		print_string(PRINT_FP, NULL, "wash ", NULL);
@@ -577,6 +593,9 @@ static int cake_print_opt(const struct qdisc_util *qu, FILE *f, struct rtattr *o
 	if (fwmark)
 		print_uint(PRINT_FP, NULL, "fwmark 0x%x ", fwmark);
 	print_0xhex(PRINT_JSON, "fwmark", NULL, fwmark);
+
+	if (active_queues>=0)
+		print_uint(PRINT_ANY, "active_queues", "active queues: %llu ", active_queues);
 
 	return 0;
 }
