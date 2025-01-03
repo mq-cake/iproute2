@@ -433,6 +433,9 @@ static int cake_print_opt(const struct qdisc_util *qu, FILE *f, struct rtattr *o
 	unsigned int memlimit = 0;
 	unsigned int fwmark = 0;
 	__u32 active_queues=0;
+	__u32 min_timer_slack=0;
+	__u32 max_timer_slack=0;
+	__u32 avg_timer_slack=0;
 	__u64 bandwidth = 0;
 	int ack_filter = 0;
 	int split_gso = 0;
@@ -541,6 +544,18 @@ static int cake_print_opt(const struct qdisc_util *qu, FILE *f, struct rtattr *o
 		RTA_PAYLOAD(tb[TCA_CAKE_ACITVE_QUEUES]) >= sizeof(__u32)) {
 		active_queues = rta_getattr_u32(tb[TCA_CAKE_ACITVE_QUEUES]);
 	}
+	if (tb[TCA_CAKE_MIN_TIMER_SLACK] &&
+		RTA_PAYLOAD(tb[TCA_CAKE_MIN_TIMER_SLACK]) >= sizeof(__u32)) {
+		min_timer_slack = rta_getattr_u32(tb[TCA_CAKE_MIN_TIMER_SLACK]);
+	}
+	if (tb[TCA_CAKE_MAX_TIMER_SLACK] &&
+		RTA_PAYLOAD(tb[TCA_CAKE_MAX_TIMER_SLACK]) >= sizeof(__u32)) {
+		max_timer_slack = rta_getattr_u32(tb[TCA_CAKE_MAX_TIMER_SLACK]);
+	}
+	if (tb[TCA_CAKE_AVG_TIMER_SLACK] &&
+		RTA_PAYLOAD(tb[TCA_CAKE_AVG_TIMER_SLACK]) >= sizeof(__u32)) {
+		avg_timer_slack = rta_getattr_u32(tb[TCA_CAKE_AVG_TIMER_SLACK]);
+	}
 
 	if (wash)
 		print_string(PRINT_FP, NULL, "wash ", NULL);
@@ -596,6 +611,12 @@ static int cake_print_opt(const struct qdisc_util *qu, FILE *f, struct rtattr *o
 
 	if (active_queues>=0)
 		print_uint(PRINT_ANY, "active_queues", "active queues: %llu ", active_queues);
+	if (min_timer_slack>=0)
+		print_uint(PRINT_ANY, "min_timer_slack", "min_timer_slack: %llu ", min_timer_slack);
+	if (max_timer_slack>=0)
+		print_uint(PRINT_ANY, "max_timer_slack", "max_timer_slack: %llu ", max_timer_slack);
+	if (avg_timer_slack>=0)
+		print_uint(PRINT_ANY, "avg_timer_slack", "avg_timer_slack: %llu ", avg_timer_slack);
 
 	return 0;
 }
