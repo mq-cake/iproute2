@@ -1,3 +1,17 @@
+TC for mq-cake
+--------------
+This repository adds mq-cake support for the tc command line tool.
+q_cake.c is extended by additional configuration options:
+
+- sync [0-9]+(s|ms|us) : This controls the synctime interval of the mq-cake instance; defaults
+  to 200us.
+
+Further, additional informations are shown when using "tc qdisc show":
+- active_queues: The current active_queue estimation by mq-cake
+- min/avg/max-timer-slack: The min/avg/max time difference between the calculated departure time and
+  the actual time the packet is dequeued
+
+
 This is a set of utilities for Linux networking.
 
 Information:
