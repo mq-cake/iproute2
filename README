@@ -6,9 +6,16 @@ q_cake.c is extended by additional configuration options:
 - sync [0-9]+(s|ms|us) : This controls the synctime interval of the mq-cake instance; defaults
   to 200us.
 
+Example:
+```
+tc qdisc add dev $IF root cake_mq besteffort flows bandwidth $RATE sync 200us
+```
+
 Further, additional informations are shown when using "tc qdisc show":
 - active_queues: The current active_queue estimation by mq-cake
 
+Resources about mq-cake/cake-mq:
+    https://netdevconf.info/0x19/sessions/talk/mq-cake-scaling-software-rate-limiting-across-cpu-cores.html
 
 This is a set of utilities for Linux networking.
 

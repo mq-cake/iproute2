@@ -846,3 +846,10 @@ struct qdisc_util cake_qdisc_util = {
 	.print_qopt	= cake_print_opt,
 	.print_xstats	= cake_print_xstats,
 };
+
+struct qdisc_util cake_mq_qdisc_util = {
+	.id		= "cake_mq",
+	.parse_qopt	= cake_parse_opt,
+	.print_qopt	= cake_print_opt,
+	.print_xstats	= cake_print_xstats,
+};
